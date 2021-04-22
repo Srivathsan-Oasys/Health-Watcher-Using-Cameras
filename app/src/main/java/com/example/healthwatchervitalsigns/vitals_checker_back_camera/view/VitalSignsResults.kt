@@ -9,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.healthwatchervitalsigns.R
+import com.example.healthwatchervitalsigns.firebase_db.Vitals
+import com.google.firebase.database.FirebaseDatabase
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,6 +50,8 @@ class VitalSignsResults : AppCompatActivity() {
             VSO2.text = VO2.toString()
         }
 
+        upload("$user", "$Date", "$VHR", "$VBP1 / $VBP2", "$VRR", "$VO2")
+
         All.setOnClickListener { v: View? ->
             val i = Intent(Intent.ACTION_SEND)
             i.type = "message/rfc822"
@@ -64,5 +68,26 @@ class VitalSignsResults : AppCompatActivity() {
                     .show()
             }
         }
+    }
+
+    private fun upload(
+        user: String,
+        date: String,
+        heartRate: String,
+        bp: String,
+        respirationRate: String,
+        oxygenSaturation: String
+    ) {
+        val databaseReference = FirebaseDatabase.getInstance().getReference("back camera")
+        val id = databaseReference.push().key ?: "null"
+        val vitals = Vitals(
+            name = user,
+            time = date,
+            heartRate = heartRate,
+            bp = bp,
+            respirationRate = respirationRate,
+            oxygenSaturation = oxygenSaturation
+        )
+        databaseReference.child(id).setValue(vitals)
     }
 }

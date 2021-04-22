@@ -39,17 +39,11 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun initView() {
-        with(pref.edit()) {
-            putFloat(Constants.PREF_HEIGHT, 180F)
-            putFloat(Constants.PREF_WEIGHT, 80F)
-            putFloat(Constants.PREF_GENDER, 1F)
-            putFloat(Constants.PREF_AGE, 30F)
-            apply()
-        }
+
     }
 
     private fun listeners() {
-        btnVitals.setOnClickListener {
+        btnVitalsBackCamera.setOnClickListener {
             if (permissionGranted) {
                 val intent = Intent(this, VitalsProcessActivity::class.java)
                 startActivity(intent)

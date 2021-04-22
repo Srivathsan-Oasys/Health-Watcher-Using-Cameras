@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "799582094295",
+    "project_id": "test-chatbot-1d36b",
+    "storage_bucket": "test-chatbot-1d36b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799582094295:android:8611fd4990449cf7308192",
+        "android_client_info": {
+          "package_name": "com.example.healthwatchervitalsigns"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "799582094295-g8f7vuugpt0ck0uf8m3apli787jkgoer.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBhOrpnjQkKV-QxRCrF4M0ECmfT1HYvkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "799582094295-g8f7vuugpt0ck0uf8m3apli787jkgoer.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799582094295:android:05b8ff82cea4a3db308192",
+        "android_client_info": {
+          "package_name": "com.example.testchatbot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "799582094295-g8f7vuugpt0ck0uf8m3apli787jkgoer.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBhOrpnjQkKV-QxRCrF4M0ECmfT1HYvkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "799582094295-g8f7vuugpt0ck0uf8m3apli787jkgoer.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
