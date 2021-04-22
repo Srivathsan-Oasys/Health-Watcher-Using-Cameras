@@ -1,4 +1,4 @@
-package com.example.healthwatchervitalsigns.vitals_checker_front_camera
+package com.example.healthwatchervitalsigns.vitals_checker_front_camera.view
 
 import android.Manifest
 import android.app.Activity
@@ -28,11 +28,18 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.frontcamera.util.FastIcaRgb
-import com.example.frontcamera.util.Fft
-import com.example.frontcamera.util.StorageUtils
 import com.example.healthwatchervitalsigns.R
+import com.example.healthwatchervitalsigns.firebase_db.VitalsFrontCamera
+import com.example.healthwatchervitalsigns.utils.Utils
+import com.example.healthwatchervitalsigns.vitals_checker_back_camera.constants.Constants
+import com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils.FastIcaRgb
+import com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils.Fft
+import com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils.StorageUtils
+import com.google.firebase.database.FirebaseDatabase
 import java.io.*
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 class BloodPressureActivity : AppCompatActivity() {
     private val PREFS_NAME = "MyPrefsFile"
@@ -45,8 +52,7 @@ class BloodPressureActivity : AppCompatActivity() {
     private var mCamera: Camera? = null
     private var defaultCameraId = 0
 
-    private var mTextViewHeartRate: TextView? =
-        null
+    private var mTextViewHeartRate: TextView? = null
     private var mTextViewBloodPressure: TextView? = null
     private var mTextViewTemperature: TextView? = null
     private var mTextViewFace0Coordinates: TextView? = null
@@ -58,9 +64,7 @@ class BloodPressureActivity : AppCompatActivity() {
     private var mTextViewPosition: TextView? = null
     val CAMERA_MIC_PERMISSION_REQUEST_CODE = 302
 
-
-    private var previewWidth =
-        0
+    private var previewWidth = 0
     private var previewHeight: Int = 0 // Defined in surfaceChanged()
 
 
@@ -117,6 +121,7 @@ class BloodPressureActivity : AppCompatActivity() {
     private val CONTACT_PICKER_EMAIL_RESULT = 100
     private val CONTACT_PICKER_PHONE_NUMBER_RESULT = 200
 
+    private lateinit var pref: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +131,9 @@ class BloodPressureActivity : AppCompatActivity() {
             PREFS_NAME,
             0
         ) // Load saved stats // Only done once while app is running
+
+        pref = getSharedPreferences(Constants.PREF_NAME, Context.MODE_PRIVATE)
+
         mTextViewHeartRate = findViewById<View>(R.id.textView0) as TextView
         mTextViewBloodPressure = findViewById<View>(R.id.textView1) as TextView
         mTextViewTemperature = findViewById<View>(R.id.textView2) as TextView
@@ -154,10 +162,6 @@ class BloodPressureActivity : AppCompatActivity() {
         super.onResume()
         loadPatientEditableStats()
         activateGps()
-    }
-
-    override fun onPause() {
-        super.onPause()
     }
 
     override fun onDestroy() {
@@ -196,7 +200,7 @@ class BloodPressureActivity : AppCompatActivity() {
         val meanPulsePressure = Q * R
         systolicPressure = (meanPulsePressure + 4.5 / 3 * pulsePressure).toInt()
         diastolicPressure = (meanPulsePressure - pulsePressure / 3).toInt()
-        mTextViewBloodPressure?.setText("Blood Pressure: $systolicPressure/$diastolicPressure")
+        mTextViewBloodPressure?.text = "Blood Pressure: $systolicPressure/$diastolicPressure"
         saveSharedPreference("systolicPressure", systolicPressure)
         saveSharedPreference("diastolicPressure", diastolicPressure)
     }
@@ -217,7 +221,7 @@ class BloodPressureActivity : AppCompatActivity() {
                 holder // Install a SurfaceHolder.Callback so we get notified when the underlying surface is created and destroyed
             mHolder.addCallback(this)
             mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS) // deprecated, but required on Android versions prior to 3.0
-            mSupportedPreviewSizes = mCamera!!.getParameters().getSupportedPreviewSizes()
+            mSupportedPreviewSizes = mCamera!!.parameters.supportedPreviewSizes
         }
 
         override fun surfaceCreated(holder: SurfaceHolder) { // The Surface has been created, now tell the camera where to draw the preview
@@ -253,9 +257,9 @@ class BloodPressureActivity : AppCompatActivity() {
             previewWidth = w
             previewHeight = h
             mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, w, h)
-            val parameters: Parameters? = mCamera?.getParameters()
+            val parameters: Parameters? = mCamera?.parameters
             parameters?.setPreviewSize(mPreviewSize!!.width, mPreviewSize!!.height)
-            mCamera?.setParameters(parameters)
+            mCamera?.parameters = parameters
             requestLayout()
             previewWidth = mPreviewSize!!.width
             previewHeight = mPreviewSize!!.height
@@ -285,7 +289,7 @@ class BloodPressureActivity : AppCompatActivity() {
                 // Gets called for every frame  // For manually added buffers/threads // Use setPreviewCallback() for automatic buffers
                 // NOTE: not ran if buffer isn't big enough for data // NOTE: not all devices have cameras that support preview sizes at the same aspect ratio as the device's display
                 if (numberOfFacesCurrentlyDetected == 0) {
-                    mTextViewFace0Coordinates?.setText("Face Rectangle: No Face Detected")
+                    mTextViewFace0Coordinates?.text = "Face Rectangle: No Face Detected"
                     frameNumber = 0
                     //				    	mImageViewRectangle0.bringToFront();
                     //				    	mImageViewRectangle0.setPadding(300, 400, 0, 0);
@@ -375,7 +379,7 @@ class BloodPressureActivity : AppCompatActivity() {
                     g /= numberOfPixelsToAnalyze
                     b /= numberOfPixelsToAnalyze
                     if (frameNumber < heartRateFrameLength) {
-                        mTextViewDebug?.setText("RGB: $r,$g,$b")
+                        mTextViewDebug?.text = "RGB: $r,$g,$b"
                         if (frameNumber == 0) {
                             samplingFrequency = System.nanoTime() // Start time
                             //Log.d("DEBUG RGB", "DEBUG: samplingFrequency: " + samplingFrequency);
@@ -386,12 +390,14 @@ class BloodPressureActivity : AppCompatActivity() {
                         arrayRed[frameNumber] = r.toDouble()
                         arrayGreen[frameNumber] = g.toDouble()
                         arrayBlue[frameNumber] = b.toDouble()
-                        mTextViewHeartRate?.setText("Heart Rate: in " + (heartRateFrameLength - frameNumber) + "..")
-                        mTextViewBloodPressure?.setText("Blood Pressure: in " + (heartRateFrameLength - frameNumber + 1) + "..") // Shows how long until measurement will display
+                        mTextViewHeartRate?.text =
+                            "Heart Rate: in " + (heartRateFrameLength - frameNumber) + ".."
+                        mTextViewBloodPressure?.text =
+                            "Blood Pressure: in " + (heartRateFrameLength - frameNumber + 1) + ".." // Shows how long until measurement will display
                         frameNumber++
                     } else if (frameNumber == heartRateFrameLength) { // So that these functions don't run every frame preview, just on the 32nd one // TODO add sound when finish
-                        mTextViewHeartRate?.setText("Heart Rate: calculating..")
-                        mTextViewBloodPressure?.setText("Blood Pressure: calculating..")
+                        mTextViewHeartRate?.text = "Heart Rate: calculating.."
+                        mTextViewBloodPressure?.text = "Blood Pressure: calculating.."
                         samplingFrequency =
                             System.nanoTime() - samplingFrequency // Minus end time = length of heartRateFrameLength frames
                         var finalSamplingFrequency: Double =
@@ -410,14 +416,15 @@ class BloodPressureActivity : AppCompatActivity() {
                         val heartRateFrequency: Double =
                             Fft.FFT(arrayGreen, heartRateFrameLength, finalSamplingFrequency)
                         if (heartRateFrequency == 0.0) {
-                            mTextViewHeartRate?.setText("Heart Rate: Error, try again")
-                            mTextViewBloodPressure?.setText("Blood Pressure:")
+                            mTextViewHeartRate?.text = "Heart Rate: Error, try again"
+                            mTextViewBloodPressure?.text = "Blood Pressure:"
                         } else {
                             heartRate =
                                 Math.round(heartRateFrequency * 60 * 100) / 100.toDouble()
-                            mTextViewHeartRate?.setText("Heart Rate: $heartRate")
-                            mTextViewBloodPressure?.setText("Blood Pressure: in 0..") // Just informing the user that BP almost calculated
-                            mTextViewDebug?.setText("Fps: $finalSamplingFrequency")
+                            mTextViewHeartRate?.text = "Heart Rate: $heartRate"
+                            mTextViewBloodPressure?.text =
+                                "Blood Pressure: in 0.." // Just informing the user that BP almost calculated
+                            mTextViewDebug?.text = "Fps: $finalSamplingFrequency"
                             settings?.getInt("age", 25)?.let {
                                 settings!!.getString("sex", "Male")?.let { it1 ->
                                     settings!!.getString("position", "Sitting")?.let { it2 ->
@@ -433,9 +440,22 @@ class BloodPressureActivity : AppCompatActivity() {
                                 }
                             }
                             val sample: Int = heartRate.toInt()
-                            saveSharedPreference("heartRate", sample as Int)
+                            saveSharedPreference("heartRate", sample)
                             frameNumber++ // Ensures this if-statement is only ran once by making frameNumber one bigger than heartRateLength
-                            promptUserToSaveData() // Ask user if they would like to save this data
+                            val user: String =
+                                pref.getString(Constants.PREF_USER_NAME, "User") ?: "User"
+                            val df: DateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+                            val today = Calendar.getInstance().time
+                            val Date = df.format(today)
+                            upload(
+                                user,
+                                Date,
+                                "$heartRate",
+                                "$systolicPressure/$diastolicPressure",
+                                "$temperature"
+                            )
+//                            promptUserToSaveData() // Ask user if they would like to save this data
+                            success("Heart Rate = $heartRate, BP = $systolicPressure/$diastolicPressure, Temperature = $temperature")
                         }
                     } else {
                         // do nothing
@@ -549,7 +569,8 @@ class BloodPressureActivity : AppCompatActivity() {
                 faceTop0 = faces[0].rect.top
                 faceRight0 = faces[0].rect.right
                 faceBottom0 = faces[0].rect.bottom
-                mTextViewFace0Coordinates?.setText("Face Rectangle: ($faceLeft0,$faceTop0), ($faceRight0,$faceBottom0)")
+                mTextViewFace0Coordinates?.text =
+                    "Face Rectangle: ($faceLeft0,$faceTop0), ($faceRight0,$faceBottom0)"
                 mImageViewRectangle0?.bringToFront()
                 //mImageViewRectangle0.setPadding(100, 100, 0, 0);
                 mImageViewRectangle0?.setPadding(
@@ -707,18 +728,18 @@ class BloodPressureActivity : AppCompatActivity() {
         temperature = settings!!.getFloat("internalTemperature", 0f)
         if (displayEnglishUnits) {
             mTextViewAge!!.text = "Age: " + settings!!.getInt("age", 23)
-            mTextViewSex?.setText("Sex: " + settings!!.getString("sex", "Male"))
-            mTextViewWeight?.setText("Weight: " + settings!!.getInt("weight", 160) + " pounds")
-            mTextViewHeight?.setText("Height: " + settings!!.getInt("height", 75) + " inches")
-            mTextViewPosition?.setText("Position: " + settings!!.getString("position", "Sitting"))
-            mTextViewTemperature?.setText("Temperature: $temperature") // TODO: Add Click to add..
+            mTextViewSex?.text = "Sex: " + settings!!.getString("sex", "Male")
+            mTextViewWeight?.text = "Weight: " + settings!!.getInt("weight", 160) + " pounds"
+            mTextViewHeight?.text = "Height: " + settings!!.getInt("height", 75) + " inches"
+            mTextViewPosition?.text = "Position: " + settings!!.getString("position", "Sitting")
+            mTextViewTemperature?.text = "Temperature: $temperature" // TODO: Add Click to add..
         } else {
             mTextViewAge!!.text = "Age: " + settings!!.getInt("age", 23)
-            mTextViewSex?.setText("Sex: " + settings!!.getString("sex", "Male"))
-            mTextViewWeight?.setText("Weight: " + settings!!.getInt("weight", 73) + " kg")
-            mTextViewHeight?.setText("Height: " + settings!!.getInt("height", 75) + " cm")
-            mTextViewPosition?.setText("Position: " + settings!!.getString("position", "Sitting"))
-            mTextViewTemperature?.setText("Temperature: $temperature") // TODO: Add Click to add..
+            mTextViewSex?.text = "Sex: " + settings!!.getString("sex", "Male")
+            mTextViewWeight?.text = "Weight: " + settings!!.getInt("weight", 73) + " kg"
+            mTextViewHeight?.text = "Height: " + settings!!.getInt("height", 75) + " cm"
+            mTextViewPosition?.text = "Position: " + settings!!.getString("position", "Sitting")
+            mTextViewTemperature?.text = "Temperature: $temperature" // TODO: Add Click to add..
         }
     }
 
@@ -740,57 +761,6 @@ Temperature: $temperature${if (displayEnglishUnits == true) " F" else " C"}"""
         editor.commit() // This line saves the edits
     }
 
-
-    /** Menu Related Items  */
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.activity_common, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle item selection
-        return when (item.itemId) {
-            R.id.menu_settings -> {
-                // Do nothing
-                saveSharedPreference(
-                    "userInputForEmail",
-                    ""
-                ) // This is done so that the one-time popup will show again
-                saveSharedPreference("userInputForPhoneNumber", "")
-                Toast.makeText(this, "Settings returned to default", Toast.LENGTH_SHORT).show()
-                true
-            }
-            R.id.menu_convertUnits -> {
-                onMenuClickConvertUnits()
-                true
-            }
-            R.id.menu_sendEmail -> {
-                if (settings!!.getString("userInputForEmail", "") == "") {
-                    promptUserInputForEmail() // Basically runs just one time
-                } else {
-                    sendEmail(
-                        settings!!.getString("userInputForEmail", ""),
-                        getFormattedVitalSigns()
-                    )
-                }
-                true
-            }
-            R.id.menu_sendSMS -> {
-                if (settings!!.getString("userInputForPhoneNumber", "") == "") {
-                    promptUserInputForPhoneNumber() // Basically runs just one time
-                } else {
-                    sendSMS(
-                        settings!!.getString("userInputForPhoneNumber", ""),
-                        getFormattedVitalSigns()
-                    )
-                }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    } // END onOptionsItemSelected()
-
-
     private fun onMenuClickConvertUnits() {
         displayEnglishUnits = !displayEnglishUnits // Toggle units.
         val editor = settings!!.edit() // Needed to make changes
@@ -799,15 +769,15 @@ Temperature: $temperature${if (displayEnglishUnits == true) " F" else " C"}"""
             editor.putInt("height", (settings!!.getInt("height", 190) / 2.54).toInt())
             editor.putBoolean("displayEnglishUnits", displayEnglishUnits)
             editor.commit() // This line saves the edits
-            mTextViewWeight?.setText("Weight: " + settings!!.getInt("weight", 73) + " pounds")
-            mTextViewHeight?.setText("Height: " + settings!!.getInt("height", 190) + " inches")
+            mTextViewWeight?.text = "Weight: " + settings!!.getInt("weight", 73) + " pounds"
+            mTextViewHeight?.text = "Height: " + settings!!.getInt("height", 190) + " inches"
         } else { // Metric
             editor.putInt("weight", (settings!!.getInt("weight", 160) / 2.20462).toInt())
             editor.putInt("height", (settings!!.getInt("height", 75) * 2.54).toInt())
             editor.putBoolean("displayEnglishUnits", displayEnglishUnits)
             editor.commit() // This line saves the edits
-            mTextViewWeight?.setText("Weight: " + settings!!.getInt("weight", 160) + " kg")
-            mTextViewHeight?.setText("Height: " + settings!!.getInt("height", 75) + " cm")
+            mTextViewWeight?.text = "Weight: " + settings!!.getInt("weight", 160) + " kg"
+            mTextViewHeight?.text = "Height: " + settings!!.getInt("height", 75) + " cm"
         }
     }
 
@@ -1064,5 +1034,35 @@ Temperature: $temperature${if (displayEnglishUnits == true) " F" else " C"}"""
                 //  toast(R.string.permissions_needed)
             }
         }
+    }
+
+    private fun upload(
+        user: String,
+        date: String,
+        heartRate: String,
+        bp: String,
+        temp: String
+    ) {
+        val databaseReference = FirebaseDatabase.getInstance().getReference(user)
+        val id = databaseReference.push().key ?: "null"
+        val vitals = VitalsFrontCamera(
+            name = user,
+            time = date,
+            heartRate = heartRate,
+            bp = bp,
+            temp = temp
+        )
+        databaseReference.child("front cam - $id").setValue(vitals)
+    }
+
+    private fun success(message: String) {
+        Utils.displayDialog(
+            context = this,
+            message = message,
+            positiveButtonText = "OK",
+            positiveButtonClickListener = { dialog, which ->
+                finish()
+            }
+        )
     }
 }

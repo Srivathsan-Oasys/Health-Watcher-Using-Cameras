@@ -57,6 +57,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 val intent = Intent(context, MainActivity::class.java)
                 startActivity(intent)
+                finish()
             } else {
                 Toast.makeText(context, "Please enter all the values", Toast.LENGTH_SHORT).show()
             }

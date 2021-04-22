@@ -1,15 +1,10 @@
 package com.example.healthwatchervitalsigns.vitals_checker_back_camera.view
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.healthwatchervitalsigns.R
-import com.example.healthwatchervitalsigns.firebase_db.Vitals
+import com.example.healthwatchervitalsigns.firebase_db.VitalsBackCamera
 import com.google.firebase.database.FirebaseDatabase
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -35,7 +30,6 @@ class VitalSignsResults : AppCompatActivity() {
         val VSBPS = findViewById<TextView>(R.id.BP2V)
         val VSHR = findViewById<TextView>(R.id.HRV)
         val VSO2 = findViewById<TextView>(R.id.O2V)
-        val All = findViewById<Button>(R.id.SendAll)
         val bundle = intent.extras
         if (bundle != null) {
             VRR = bundle.getInt("breath")
@@ -51,23 +45,6 @@ class VitalSignsResults : AppCompatActivity() {
         }
 
         upload("$user", "$Date", "$VHR", "$VBP1 / $VBP2", "$VRR", "$VO2")
-
-        All.setOnClickListener { v: View? ->
-            val i = Intent(Intent.ACTION_SEND)
-            i.type = "message/rfc822"
-            i.putExtra(Intent.EXTRA_EMAIL, arrayOf("recipient@example.com"))
-            i.putExtra(Intent.EXTRA_SUBJECT, "Health Watcher")
-            i.putExtra(
-                Intent.EXTRA_TEXT,
-                "$user's new measurement \n at $Date are :\nHeart Rate = $VHR\nBlood Pressure = $VBP1 / $VBP2\nRespiration Rate = $VRR\nOxygen Saturation = $VO2"
-            )
-            try {
-                startActivity(Intent.createChooser(i, "Send mail..."))
-            } catch (ex: ActivityNotFoundException) {
-                Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
     }
 
     private fun upload(
@@ -78,9 +55,9 @@ class VitalSignsResults : AppCompatActivity() {
         respirationRate: String,
         oxygenSaturation: String
     ) {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("back camera")
+        val databaseReference = FirebaseDatabase.getInstance().getReference(user)
         val id = databaseReference.push().key ?: "null"
-        val vitals = Vitals(
+        val vitals = VitalsBackCamera(
             name = user,
             time = date,
             heartRate = heartRate,
@@ -88,6 +65,6 @@ class VitalSignsResults : AppCompatActivity() {
             respirationRate = respirationRate,
             oxygenSaturation = oxygenSaturation
         )
-        databaseReference.child(id).setValue(vitals)
+        databaseReference.child("back cam - $id").setValue(vitals)
     }
 }

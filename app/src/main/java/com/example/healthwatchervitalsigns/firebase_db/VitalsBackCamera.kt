@@ -1,6 +1,6 @@
 package com.example.healthwatchervitalsigns.firebase_db
 
-data class Vitals(
+data class VitalsBackCamera(
     val name: String,
     val time: String,
     val heartRate: String,

@@ -175,17 +175,4 @@
 
         </LinearLayout>
     </LinearLayout>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
-    <Button
-        android:id="@+id/SendAll"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_marginBottom="40dp"
-        android:scaleType="fitCenter"
-        android:text="Share" />
-
 </LinearLayout>

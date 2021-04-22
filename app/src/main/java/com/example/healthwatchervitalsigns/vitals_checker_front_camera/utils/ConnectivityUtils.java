@@ -1,4 +1,4 @@
-package com.example.frontcamera.util;
+package com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils;
 
 import android.app.Activity;
 import android.content.Context;

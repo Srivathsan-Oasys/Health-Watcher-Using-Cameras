@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,9 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.healthwatchervitalsigns.main.MainActivity" />
-        <activity android:name="com.example.healthwatchervitalsigns.vitals_checker_back_camera.view.VitalsProcessActivity" />
-        <activity android:name="com.example.healthwatchervitalsigns.vitals_checker_back_camera.view.VitalSignsResults" />
+        <activity android:name=".main.MainActivity" />
+        <activity android:name=".vitals_checker_back_camera.view.VitalsProcessActivity" />
+        <activity android:name=".vitals_checker_back_camera.view.VitalSignsResults" />
+        <activity android:name=".vitals_checker_front_camera.view.BloodPressureActivity"/>
     </application>
 
 </manifest>

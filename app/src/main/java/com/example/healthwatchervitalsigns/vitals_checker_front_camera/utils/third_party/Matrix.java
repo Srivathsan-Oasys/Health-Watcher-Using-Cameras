@@ -1,4 +1,4 @@
-package com.example.frontcamera.util.thirdparty;
+package com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils.third_party;
 
 /**
  * The <code>Matrix</code> class provides some useful static functions to

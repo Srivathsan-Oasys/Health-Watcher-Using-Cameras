@@ -31,7 +31,7 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
-package com.example.frontcamera.util.thirdparty;
+package com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils.third_party;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;

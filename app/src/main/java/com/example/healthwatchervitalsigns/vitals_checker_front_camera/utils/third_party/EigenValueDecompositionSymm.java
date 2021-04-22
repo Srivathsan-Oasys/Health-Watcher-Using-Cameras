@@ -1,4 +1,4 @@
-package com.example.frontcamera.util.thirdparty;
+package com.example.healthwatchervitalsigns.vitals_checker_front_camera.utils.third_party;
 
 /** Eigenvalues and eigenvectors of a real matrix. 
 <P>
