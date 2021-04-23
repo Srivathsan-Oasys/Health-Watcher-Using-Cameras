@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "799582094295",
+    "firebase_url": "https://test-chatbot-1d36b-default-rtdb.firebaseio.com",
     "project_id": "test-chatbot-1d36b",
     "storage_bucket": "test-chatbot-1d36b.appspot.com"
   },
@@ -13,6 +14,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "799582094295-hp336sl0e34meaoqtq48usgfikdbf8vo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.healthwatchervitalsigns",
+            "certificate_hash": "3cca497b178a7503880fe0d761d985a9c23530b3"
+          }
+        },
         {
           "client_id": "799582094295-g8f7vuugpt0ck0uf8m3apli787jkgoer.apps.googleusercontent.com",
           "client_type": 3

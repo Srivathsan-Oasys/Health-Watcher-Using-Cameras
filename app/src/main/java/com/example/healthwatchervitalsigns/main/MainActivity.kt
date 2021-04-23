@@ -13,7 +13,6 @@ import com.example.healthwatchervitalsigns.R
 import com.example.healthwatchervitalsigns.utils.Utils
 import com.example.healthwatchervitalsigns.vitals_checker_back_camera.constants.Constants
 import com.example.healthwatchervitalsigns.vitals_checker_back_camera.view.VitalsProcessActivity
-import com.example.healthwatchervitalsigns.vitals_checker_front_camera.view.BloodPressureActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -55,11 +54,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 )
             }
-        }
-
-        btnVitalsFrontCamera.setOnClickListener {
-            val intent = Intent(this, BloodPressureActivity::class.java)
-            startActivity(intent)
         }
     }
 
